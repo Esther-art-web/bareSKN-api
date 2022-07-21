@@ -9,7 +9,7 @@ const {DATABASE_USERNAME,
     DATABASE_PASSWORD, 
     DATABASE_CLUSTER, 
     DATABASE_NAME
-} = process.env
+} = process.env;
 
 
 

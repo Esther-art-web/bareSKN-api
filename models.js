@@ -1,12 +1,55 @@
-const mongoose = require('mongoose');
+const mongoose  = require('mongoose');
+const {Schema, model} = mongoose
 
-const userSchema = new mongoose.Schema({
+
+const userSchema = new Schema({
     name: {
         type: String
     }
 })
 
-const productSchema = new mongoose.Schema({
+const collectionSchema = new Schema({
+    key: {
+        type: String,
+        required: true
+    },
+    name: {
+        type: String,
+        required: true
+    },
+    image_link: {
+        type: String,
+        required: true
+    }
+})
+
+const categorySchema = new Schema({
+    key: {
+        type: String,
+        required: true
+    },
+    name: {
+        type: String,
+        required: true
+    }
+})
+
+const subCategorySchema = new Schema({
+    key: {
+        type: String,
+        required: true
+    },
+    name: {
+        type: String,
+        required: true
+    },
+    category_key: {
+        type: String,
+        required: true
+    }
+})
+
+const productSchema = new Schema({
     name: {
         type: String,
         required: true
@@ -18,11 +61,22 @@ const productSchema = new mongoose.Schema({
     price:{
         type: Number,
         required: true
+    },
+    subcategory_keys: {
+        type: [String],
+        required: true
+    },
+    collection_keys: {
+        type: [String],
+        required: true
     }
 })
 
-const User = mongoose.model('User', userSchema)
-const Product = mongoose.model('Product', productSchema);
+const User = model('User', userSchema)
+const Collection = model('Collection', collectionSchema)
+const Category = model('Category', categorySchema)
+const SubCategory = model('SubCategory', subCategorySchema)
+const Product = model('Product', productSchema);
 
 
-module.exports = {User, Product};
+module.exports = {User, Collection, Category, SubCategory, Product};
