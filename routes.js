@@ -1,5 +1,6 @@
-const express = require("express");
-const {User, Collection, Category, SubCategory, Product} = require("./models");
+import express from "express";
+import {User, Collection, Category, SubCategory, Product} from ("./models");
+
 const app = express();
 
 app.use(express.json())
