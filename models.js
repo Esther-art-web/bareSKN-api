@@ -1,4 +1,4 @@
-import mongoose, {Schema, model} from "mongoose";
+const {Schema, model} = require("mongoose");
 // const {Schema, model} = mongoose
 
 
@@ -11,7 +11,8 @@ const userSchema = new Schema({
 const collectionSchema = new Schema({
     key: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     name: {
         type: String,
@@ -26,7 +27,8 @@ const collectionSchema = new Schema({
 const categorySchema = new Schema({
     key: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     name: {
         type: String,
@@ -37,7 +39,8 @@ const categorySchema = new Schema({
 const subCategorySchema = new Schema({
     key: {
         type: String,
-        required: true
+        required: true,
+        unique:true
     },
     name: {
         type: String,
@@ -62,11 +65,20 @@ const productSchema = new Schema({
         type: Number,
         required: true
     },
-    subcategory_keys: {
+    rating:{
+        type: Number,
+        require: false,
+        default: 0
+    },
+    image_link: {
+        type: String,
+        required: true
+    },
+    subcat_keys: {
         type: [String],
         required: true
     },
-    collection_keys: {
+    coll_keys: {
         type: [String],
         required: true
     }

@@ -1,6 +1,6 @@
-import express from "express";
-import mongoose from "mongoose";
-import Router from "./routes";
+const express = require("express");
+const mongoose = require("mongoose");
+const Router = require("./routes");
 require('dotenv').config();
 
 const app = express();
@@ -13,17 +13,26 @@ const {DATABASE_USERNAME,
 
 
 
+// mongoose.connect(
+//     `mongodb+srv://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@${DATABASE_CLUSTER}.mongodb.net/${DATABASE_NAME}?retryWrites=true&w=majority`,
+//   {
+//     useNewUrlParser: true,
+//     // useFindAndModify: false,
+//     useUnifiedTopology: true
+//   }
+// );
+
 mongoose.connect(
-    `mongodb+srv://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@${DATABASE_CLUSTER}.mongodb.net/${DATABASE_NAME}?retryWrites=true&w=majority`,
-  {
-    useNewUrlParser: true,
-    // useFindAndModify: false,
-    useUnifiedTopology: true
-  }
+  `mongodb://localhost:27017/bareSKN`,
+{
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}
 );
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error: "));
 db.once("open", function () {
+  // console.log(db.getMongo())
   console.log("Connected successfully");
 });
 
