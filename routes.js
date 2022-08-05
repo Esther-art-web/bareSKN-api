@@ -5,12 +5,11 @@ const app = express();
 
 app.use(express.json())
 
-app.get('/', (req, res) => {
-    // console.log(req)
+app.get('/api/v1.0/', (req, res) => {
     res.send('Welcome to BareSKN');
 })
 
-app.post('/users', async(req, res) => {
+app.post('/api/v1.0/users', async(req, res) => {
     const user = new User(req.body);
 
     try {
@@ -21,7 +20,7 @@ app.post('/users', async(req, res) => {
     }
 })
 
-app.get('/users', async (req, res) => {
+app.get('/api/v1.0/users', async (req, res) => {
     const users = await User.find({});
 
     try{
@@ -32,7 +31,7 @@ app.get('/users', async (req, res) => {
 })
 
 // Get all the collections 
-app.get('/collections', async(req, res) => {
+app.get('/api/v1.0/collections', async(req, res) => {
     const collections = await Collection.find({});
     try{
         res.send(collections);
@@ -42,7 +41,7 @@ app.get('/collections', async(req, res) => {
 })
 
 // Get collection by key
-app.get('/collections/:key', async (req, res) => {
+app.get('/api/v1.0/collections/:key', async (req, res) => {
     const { key } = req.params;
     const collection = await Collection.find({key})
     try{
@@ -53,7 +52,7 @@ app.get('/collections/:key', async (req, res) => {
 })
 
 // Create new collection
-app.post('/collections', async(req, res) => {
+app.post('/api/v1.0/collections', async(req, res) => {
     const collection = new Collection(req.body)
     try{
         await collection.save();
@@ -64,7 +63,7 @@ app.post('/collections', async(req, res) => {
 })
 
 // Get all categories
-app.get('/categories', async(req, res) => {
+app.get('/api/v1.0/categories', async(req, res) => {
     const categories = await Category.find({});
     try{
         res.send(categories)
@@ -74,14 +73,14 @@ app.get('/categories', async(req, res) => {
 })
 
 // Get category by key
-app.get('/categories/:key', async (req, res) => {
+app.get('/api/v1.0/categories/:key', async (req, res) => {
     return;
 
 })
 
 
 // Create new category
-app.post('/categories', async(req, res) => {
+app.post('/api/v1.0/categories', async(req, res) => {
     const category = new Category(req.body)
     try{
         await category.save();
@@ -92,7 +91,7 @@ app.post('/categories', async(req, res) => {
 })
 
 // Get all the subcategories
-app.get('/subcategories', async(req, res) => {
+app.get('/api/v1.0/subcategories', async(req, res) => {
     const subCategories = await SubCategory.find({});
     try{
         res.send(subCategories)
@@ -102,7 +101,7 @@ app.get('/subcategories', async(req, res) => {
 })
 
 // Get all subcategories by category key
-app.get('/subcategories/:category_key', async(req, res) => {
+app.get('/api/v1.0/subcategories/:category_key', async(req, res) => {
     const { category_key } = req.params;
     const category = await Category.find({key: category_key});
     const subCategories = await SubCategory.find({category_key});
@@ -117,7 +116,7 @@ app.get('/subcategories/:category_key', async(req, res) => {
 })
 
 // Create new subcategory
-app.post('/subcategories', async(req, res) => {
+app.post('/api/v1.0/subcategories', async(req, res) => {
     const subCategory = new SubCategory(req.body)
     try{
         await subCategory.save();
@@ -128,7 +127,7 @@ app.post('/subcategories', async(req, res) => {
 })
 
 // Create new product
-app.post('/products', async (req, res) => {
+app.post('/api/v1.0/products', async (req, res) => {
     const product = new Product(req.body);
     try{
         await product.save();
@@ -139,8 +138,15 @@ app.post('/products', async (req, res) => {
 })
 
 // Get all products
-app.get('/products', async(req, res) => {
-    const products = await Product.find({});
+// Paginate result
+app.get('/api/v1.0/products', async(req, res) => {
+    var products = await Product.find({});
+    var {limit, page} = req.query;
+    limit = parseInt(limit);
+    page = parseInt(page);
+    startPage = (page - 1) * limit;
+    endPage = startPage + limit;
+    products = products.slice(startPage, endPage);
     try{
         res.send(products);
     }catch (err) {
@@ -149,7 +155,7 @@ app.get('/products', async(req, res) => {
 })
 
 // Get products by collection
-app.get('/collections/:coll_key/products', async(req, res) => {
+app.get('/api/v1.0/collections/:coll_key/products', async(req, res) => {
     const { coll_key } = req.params;
     const collection = await Collection.find({key: coll_key});
     const products = await Product.find({coll_keys: coll_key});
@@ -164,7 +170,7 @@ app.get('/collections/:coll_key/products', async(req, res) => {
 })
 
 // Get products by subcategory
-app.get('/subcategories/:subcat_key/products', async(req, res) => {
+app.get('/api/v1.0/subcategories/:subcat_key/products', async(req, res) => {
     const { subcat_key } = req.params;
     const subCategory = await SubCategory.find({key: subcat_key});
     const products = await Product.find({subcat_keys: subcat_key});

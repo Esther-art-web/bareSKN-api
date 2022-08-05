@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors");
 const Router = require("./routes");
 require('dotenv').config();
 
@@ -32,10 +33,10 @@ mongoose.connect(
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error: "));
 db.once("open", function () {
-  // console.log(db.getMongo())
   console.log("Connected successfully");
 });
 
+app.use(cors({origin: '*'}))
 app.use(Router);
 
 app.listen(PORT, console.log(`Server is running in port ${PORT}`))
