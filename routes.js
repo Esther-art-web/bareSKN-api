@@ -5,6 +5,15 @@ const app = express();
 
 app.use(express.json())
 
+
+const shuffle =(array)=> {
+    length = array.length;
+    for(item of array) {
+        random = Math.floor(Math.random() * length);
+        array[random] = item;
+    }
+    return array;
+}
 app.get('/api/v1.0/', (req, res) => {
     res.send('Welcome to BareSKN');
 })
@@ -137,21 +146,36 @@ app.post('/api/v1.0/products', async (req, res) => {
     }
 })
 
-// Get all products
+// Get all products or
+// Get first five products with the highest rating
 // Paginate result
 app.get('/api/v1.0/products', async(req, res) => {
-    var products = await Product.find({});
-    var {limit, page} = req.query;
-    limit = parseInt(limit);
-    page = parseInt(page);
-    startPage = (page - 1) * limit;
-    endPage = startPage + limit;
-    products = products.slice(startPage, endPage);
-    try{
-        res.send(products);
-    }catch (err) {
-        res.status(404).send(err);
+    var {limit, page, rating} = req.query;
+    if(limit && page){
+        var products = await Product.find({}).sort({name: 1});
+        var totalLength = products.length;
+        limit = parseInt(limit);
+        page = parseInt(page);
+        startPage = (page - 1) * limit;
+        endPage = startPage + limit;
+        // products = shuffle(products);
+        products = products.slice(startPage, endPage);
+        try{
+            res.send({products, totalLength, limit});
+        }catch (err) {
+            res.status(404).send(err);
+        }
+    }else if(rating){
+        try{
+            var products = await Product.find({}).sort({rating: -1});
+            products = products.slice(0,5)
+            res.send({products})
+        }
+       catch(err){
+        res.status(500).send(err);
+       }
     }
+    
 })
 
 // Get products by collection
@@ -184,5 +208,33 @@ app.get('/api/v1.0/subcategories/:subcat_key/products', async(req, res) => {
         res.status(404).send(err);
     }
 })
+
+// Update product details
+app.patch('/api/v1.0/products/:id', async(req, res) => {
+    const _id = req.params.id;
+    const product_details = {...req.body}
+    try{
+        const product = await Product.find({_id});
+        const updated_product = await Product.updateOne({_id}, {
+            $set: product_details
+        })
+        res.send({success: "Product successfully updated!"});
+    }catch(err) {
+        res.status(404).send(err);
+    }
+    
+})
+
+// Delete a product
+app.delete('/api/v1.0/products/:id', async(req, res) => {
+    const _id = req.params.id;
+    try{
+        const product = await Product.findOneAndDelete({_id});
+        res.send({success: "Product successfully deleted!"})
+    }catch(err) {
+        res.status(404).send(err);
+    }
+})
+
 
 module.exports = app;
