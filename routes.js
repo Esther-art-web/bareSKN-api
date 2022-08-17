@@ -147,10 +147,11 @@ app.post('/api/v1.0/products', async (req, res) => {
 })
 
 // Get all products or
-// Get first five products with the highest rating
+// Get first five products with the highest rating or
+// Get product(s) by search
 // Paginate result
 app.get('/api/v1.0/products', async(req, res) => {
-    var {limit, page, rating} = req.query;
+    var {limit, page, rating, search_term} = req.query;
     if(limit && page){
         var products = await Product.find({}).sort({name: 1});
         var totalLength = products.length;
@@ -168,12 +169,21 @@ app.get('/api/v1.0/products', async(req, res) => {
     }else if(rating){
         try{
             var products = await Product.find({}).sort({rating: -1});
-            products = products.slice(0,5)
-            res.send({products})
+            products = shuffle(products);
+            products = products.slice(0, 5);
+            res.send({products});
         }
        catch(err){
         res.status(500).send(err);
        }
+    }else if(search_term){
+        try{
+            var products = await Product.find({name: {$regex: search_term, $options: 'i'}}).sort({name: 1}).exec();
+            products = products.slice(0, 5);
+            res.send({products});
+        }catch(err){
+            res.status(404).send(err);
+        }
     }
     
 })
@@ -209,6 +219,8 @@ app.get('/api/v1.0/subcategories/:subcat_key/products', async(req, res) => {
     }
 })
 
+
+
 // Update product details
 app.patch('/api/v1.0/products/:id', async(req, res) => {
     const _id = req.params.id;
@@ -228,6 +240,7 @@ app.patch('/api/v1.0/products/:id', async(req, res) => {
 // Delete a product
 app.delete('/api/v1.0/products/:id', async(req, res) => {
     const _id = req.params.id;
+    console.log(_id)
     try{
         const product = await Product.findOneAndDelete({_id});
         res.send({success: "Product successfully deleted!"})
