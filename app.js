@@ -11,9 +11,20 @@ const PORT = process.env.PORT || 8080;
 const {DATABASE_USERNAME, 
     DATABASE_PASSWORD, 
     DATABASE_CLUSTER, 
-    DATABASE_NAME
+    DATABASE_NAME,
+    NODE_ENV,
+    DATABASE_DEV_URL,
+    DATABASE_TEST_URL
 } = process.env;
 
+let dbURL;
+
+if (process.env.NODE_ENV ==='test'){
+  dbURL = DATABASE_TEST_URL
+}
+else if (process.env.NODE_ENV ==='development'){
+  dbURL = DATABASE_DEV_URL
+}
 
 
 // mongoose.connect(
@@ -26,7 +37,7 @@ const {DATABASE_USERNAME,
 // );
 
 mongoose.connect(
-  `mongodb://localhost:27017/bareSKN`,
+  dbURL,
 {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -44,4 +55,6 @@ app.use(cors({origin: '*'}))
 // }));
 app.use(Router);
 
-app.listen(PORT, console.log(`Server is running in port ${PORT}`))
+app.listen(PORT, console.log(`Server is running in port ${PORT}`));
+
+module.exports = app;

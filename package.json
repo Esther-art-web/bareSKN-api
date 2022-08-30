@@ -3,15 +3,20 @@
   "version": "1.0.0",
   "description": "BareSKN API is a CORS enabled, RESTful API with resource-oriented URLs, accepts form encoded request bodies or variable request parameters, returns ***JSON-encoded*** responses, and uses standard HTTP response status codes and messages.\\\r A ***NodeJS*** application created particularly to be used in BareSKN application, an ecommerce web application for sales of skincare products, rendering of esthetic procedures , and so much more (You can check it out here -> [Link to bareSKN-app]).\\\r BareSKN API was created using ***Test Driven Development*** (TDD), hence you can also use this API in test mode without interacting with your main development database.",
   "main": "app.js",
- 
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "cross-env NODE_ENV=test jest --maxWorkers 2 --testTimeout=20000",
     "start": "node app.js",
     "dev": "nodemon app.js"
   },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
+  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Esther-art-web/bareSKN-api.git"
+    "url": "https://github.com/Esther-art-web/bareSKN-api.git"
   },
   "keywords": [],
   "author": "",
@@ -30,6 +35,9 @@
     "mongoose": "^6.5.1"
   },
   "devDependencies": {
-    "nodemon": "^2.0.19"
+    "cross-env": "^7.0.3",
+    "jest": "^29.0.1",
+    "nodemon": "^2.0.19",
+    "supertest": "^6.2.4"
   }
 }

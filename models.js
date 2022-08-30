@@ -84,11 +84,38 @@ const productSchema = new Schema({
     }
 })
 
-const User = model('User', userSchema)
-const Collection = model('Collection', collectionSchema)
-const Category = model('Category', categorySchema)
-const SubCategory = model('SubCategory', subCategorySchema)
+const cartSchema = new Schema({
+    owner_id: {
+        type: String,
+        required: true
+    },
+    cartItems: {
+        type: [Object],
+        required: true
+    },
+    amount: {
+        type: Number,
+        required: true
+    },
+    total: {
+        type: Number,
+        required: true
+    },
+    cleared: {
+        type: Boolean,
+        default: false
+    }
+})
+// cartItems: [],
+//     amount: 100,
+//     total: 0,
+
+const User = model('User', userSchema);
+const Cart = model('cart', cartSchema);
+const Collection = model('Collection', collectionSchema);
+const Category = model('Category', categorySchema);
+const SubCategory = model('SubCategory', subCategorySchema);
 const Product = model('Product', productSchema);
 
 
-module.exports = {User, Collection, Category, SubCategory, Product};
+module.exports = {User, Cart, Collection, Category, SubCategory, Product};
