@@ -2,8 +2,13 @@ const express = require("express");
 const {graphqlHTTP} = require("express-graphql");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const Router = require("./routes");
 const schema = require('./schema/schema');
+const { productsRouter } = require("./routes/products");
+const { collectionsRouter } = require("./routes/collections");
+const { categoriesRouter } = require("./routes/categories");
+const { subCategoriesRouter } = require("./routes/subcategories");
+const { cartRouter } = require("./routes/cart");
+const { usersRouter } = require("./routes/user");
 require('dotenv').config();
 
 const app = express();
@@ -53,7 +58,18 @@ app.use(cors({origin: '*'}))
 // app.use(Router, graphqlHTTP({
 //   schema
 // }));
-app.use(Router);
+app.use(express.json())
+app.use('/api/v1.0/products', productsRouter);
+app.use('/api/v1.0/collections', collectionsRouter);
+app.use('/api/v1.0/categories', categoriesRouter);
+app.use('/api/v1.0/subcategories', subCategoriesRouter);
+app.use('/api/v1.0/carts', cartRouter);
+app.use('/api/v1.0/users', usersRouter);
+
+
+app.get('/api/v1.0/', (req, res) => {
+  res.send('Welcome to BareSKN');
+})
 
 app.listen(PORT, console.log(`Server is running in port ${PORT}`));
 
