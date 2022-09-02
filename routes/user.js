@@ -3,22 +3,30 @@ const { User } = require('../models');
 
 const usersRouter = express.Router();
 
+const hashPassword = () => {
+
+}
+
 usersRouter.post('/', async(req, res) => {
     const user = new User(req.body);
-
+    console.log(user)
     try {
         await user.save();
-        res.send(user)
+        res.status(201).send(user);
     }catch (err) {
         res.status(400).send(err)
     }
 })
 
 usersRouter.get('/', async (req, res) => {
-    const users = await User.find({});
-
+    console.log(req.body)
+    const users = await User.find({...req.body});
     try{
-        res.send(users);
+        if(users.length){
+            res.send(users);
+        }else{
+            throw new Error();
+        }
     }catch(err){
         res.status(404).send(err)
     }

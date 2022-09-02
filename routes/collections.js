@@ -4,53 +4,65 @@ const { Product, Collection } = require('../models');
 const collectionsRouter = express.Router();
 
 // Get all the collections 
-collectionsRouter.get('/', async(req, res) => {
+collectionsRouter.get('/', async(req, res, next) => {
     const collections = await Collection.find({});
     try{
         res.status(200).send(collections);
     }catch(err){
-        res.status(404).send(err);
+        err.type = "internal server error";
+        next(err);
     }
 })
 
 // Get collection by key
-collectionsRouter.get('/:key', async (req, res) => {
+collectionsRouter.get('/:key', async (req, res, next) => {
     const { key } = req.params;
     const collection = await Collection.find({key})
     try{
-        res.send(collection);
+        if(collection.length){
+            res.send(collection);
+        }else{
+            throw new Error();
+        }
     }catch(err){
-        res.status(404).send(err);
+        err.type = "not found";
+        next(err);
     }
 })
 // Get products by collection
-collectionsRouter.get('/:coll_key/products', async(req, res) => {
+collectionsRouter.get('/:coll_key/products', async(req, res, next) => {
     const { coll_key } = req.params;
     const collection = await Collection.find({key: coll_key});
     const products = await Product.find({coll_keys: coll_key}).sort({name: 1});
     try{
-        res.send({
-            collection: collection[0].name,
-            products
-        })
+        if(collection && products){
+            res.send({
+                collection: collection[0].name,
+                products
+            })
+        }else{
+            throw new Error();
+        }
     }catch(err){
-        res.status(404).send(err);
+        err.type = "not found";
+        next(err);
     }
 })
 
 // Create new collection
-collectionsRouter.post('/', async(req, res) => {
+collectionsRouter.post('/', async(req, res, next) => {
     const collection = new Collection(req.body)
     try{
         await collection.save();
-        res.status(201).send(collection)
+        res.status(201).send(collection);
     } catch(err) {
-        res.status(500).send(err);
+        err.type = "bad request";
+        next(err);
     }
 })
 
 // Update a collection
-collectionsRouter.patch('/:id', async(req, res) => {
+collectionsRouter.patch('/:id', async(req, res, next) => {
     const _id = req.params.id;
     const {name, key, image_link} = req.body;
     try{
@@ -61,15 +73,19 @@ collectionsRouter.patch('/:id', async(req, res) => {
                 res.send({success: "Collection deleted successfully!"})
             }
             throw new Error();
+        }else{
+            let err = new Error();
+            err.type = "bad request";
+            next(err);
         }
-        res.status(400).send();
     }catch(err){
-        res.status(404).send();
+        err.type = "not found";
+        next(err);
     }
 })
 
 // Delete a collection
-collectionsRouter.delete('/:id', async(req, res) => {
+collectionsRouter.delete('/:id', async(req, res, next) => {
     const _id = req.params.id;
     try{
         const collection = await Collection.findByIdAndDelete(_id);
@@ -78,7 +94,8 @@ collectionsRouter.delete('/:id', async(req, res) => {
         }
         throw new Error()
     }catch(err){
-        res.status(404).send(err);
+        err.type = "not found";
+        next(err);
     }
 })
 

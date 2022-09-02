@@ -1,10 +1,31 @@
 const {Schema, model} = require("mongoose");
-// const {Schema, model} = mongoose
 
 
 const userSchema = new Schema({
-    name: {
-        type: String
+    first_name: {
+        type: String,
+        required: true
+    },
+    last_name: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    address: {
+        type: String,
+        required: true
+    },
+    phone_number: {
+        type: String,
+        required: true
+    },
+    password: {
+        type: String,
+        required: true
     }
 })
 
@@ -106,9 +127,6 @@ const cartSchema = new Schema({
         default: false
     }
 })
-// cartItems: [],
-//     amount: 100,
-//     total: 0,
 
 const User = model('User', userSchema);
 const Cart = model('cart', cartSchema);

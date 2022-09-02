@@ -66,6 +66,34 @@ app.use('/api/v1.0/subcategories', subCategoriesRouter);
 app.use('/api/v1.0/carts', cartRouter);
 app.use('/api/v1.0/users', usersRouter);
 
+// Error handling using middleware
+app.use((error, req, res, next) => {
+  console.log(error.type);
+  switch(error.type){
+    case "not found":
+      res.send({
+        statusCode: "404",
+        message: "Resource not found"
+      })
+      break;
+    case "bad request":
+      res.send({
+        statusCode: "400",
+        message: "Bad Request"
+      })
+      break;
+    case "internal server error":
+      res.send({
+        statusCode: "500",
+        message: "Internal Server Error"
+      })
+      break;
+    default:
+      console.log("Error not handled");
+  }
+  next();
+})
+
 
 app.get('/api/v1.0/', (req, res) => {
   res.send('Welcome to BareSKN');

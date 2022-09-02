@@ -42,7 +42,7 @@ cartRouter.patch('/:owner_id', async(req, res) => {
     try{
         const { id } = req.body;
         const cart = await Cart.updateOne({_id: id, owner_id}, {
-            $set: req.body
+            $set: {...req.body}
         });
         res.send(cart);
     }catch(err){
