@@ -13,10 +13,18 @@ const shuffle =(array)=> {
 
 // Create new product
 productsRouter.post('/', async (req, res, next) => {
-    const product = new Product(req.body);
+    const {name, description, price,
+        image_link, subcat_keys, coll_keys} = req.body;
+   
     try{
-        await product.save();
-        res.status(201).send(product);
+        if(name && description && price && 
+            image_link && subcat_keys && coll_keys){
+            const product = new Product(req.body);
+            await product.save();
+            res.status(201).send(product);
+        }else{
+            throw new Error();
+        }
     }catch(err) {
         err.type = "bad request";
         next(err);
@@ -74,16 +82,25 @@ productsRouter.get('/', async(req, res, next) => {
 // Update product details
 productsRouter.patch('/:id', async(req, res, next) => {
     const _id = req.params.id;
-    const product_details = {...req.body}
+    const {name, description, price, rating, 
+        image_link, subcat_keys, coll_keys} = req.body;
     try{
-        const updated_product = await Product.updateOne({_id}, {
-            $set: product_details
-        });
-        if(updated_product.modifiedCount){
-            res.send({success: "Product successfully updated!"});
+        if(name|| description|| price|| rating|| 
+            image_link|| subcat_keys|| coll_keys){
+            const updated_product = await Product.updateOne({_id}, {
+                $set: req.body
+            });
+            if(updated_product.modifiedCount){
+                res.send({success: "Product successfully updated!"});
+            }else{
+                throw new Error();
+            }
         }else{
-            throw new Error();
+            const err = new Error()
+            err.type = "bad request";
+            next(err);
         }
+        
     }catch(err) {
         err.type = "not found";
         next(err);

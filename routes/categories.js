@@ -4,53 +4,59 @@ const { Category } = require('../models');
 const categoriesRouter = express.Router();
 
 // Get all categories
-categoriesRouter.get('/', async(req, res) => {
+categoriesRouter.get('/', async(req, res, next) => {
     const categories = await Category.find({});
     try{
         res.send(categories)
     }catch(err){
-        res.status(404).send(err);
+        err.type = "internal server error";
+        next(err);
     }
 })
 
-// Get category by key
-categoriesRouter.get('/:key', async (req, res) => {
-    return;
-
-})
-
 // Create new category
-categoriesRouter.post('/', async(req, res) => {
-    const category = new Category(req.body)
+categoriesRouter.post('/', async(req, res, next) => {
+    const {name, key} = req.body;
+    
     try{
-        await category.save();
-        res.status(201).send(category);
+        if(name && key){
+            const category = new Category(req.body)
+            await category.save();
+            res.status(201).send(category);
+        }else{
+            throw new Error();
+        }
     } catch(err) {
-        res.status(500).send(err);
+        err.type = "bad request";
+        next(err);
     }
 })
 
 // Update a category
-categoriesRouter.patch('/:id', async(req, res) => {
+categoriesRouter.patch('/:id', async(req, res, next) => {
     const _id = req.params.id;
-    const {name, key} = req.body;
+    const {name} = req.body;
     try{
-        if(name || key ){
+        if(name){
             const category = await Category.findByIdAndUpdate({_id}, 
                 {$set: req.body})
             if(category.modifiedCount){
                 res.send({success: "Category updated successfully!"})
             }
             throw new Error();
+        }else{
+            const err = new Error();
+            err.type = "bad request";
+            next(err);
         }
-        res.status(400).send();
     }catch(err){
-        res.status(404).send();
+        err.type = "not found";
+        next(err);
     }
 })
 
 // Delete a category
-categoriesRouter.delete('/:id', async(req, res) => {
+categoriesRouter.delete('/:id', async(req, res, next) => {
     const _id = req.params.id;
     
     try{
@@ -60,7 +66,8 @@ categoriesRouter.delete('/:id', async(req, res) => {
         }
         throw new Error();
     }catch(err){
-        res.status(404).send(err);
+        err.type = "not found";
+        next(err);
     }
 })
 

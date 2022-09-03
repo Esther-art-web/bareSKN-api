@@ -8,11 +8,19 @@ const hashPassword = () => {
 }
 
 usersRouter.post('/', async(req, res) => {
-    const user = new User(req.body);
-    console.log(user)
+    const { first_name, last_name, email, address,
+        phone_number, password } = req.body
+    
     try {
-        await user.save();
-        res.status(201).send(user);
+        if(first_name && last_name && email && address &&
+            phone_number && password){
+            const user = new User(req.body);
+            await user.save();
+            res.status(201).send(user);
+        }else{
+            throw new Error();
+        }
+        
     }catch (err) {
         res.status(400).send(err)
     }

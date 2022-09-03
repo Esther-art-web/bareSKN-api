@@ -71,19 +71,19 @@ app.use((error, req, res, next) => {
   console.log(error.type);
   switch(error.type){
     case "not found":
-      res.send({
+      res.status(404).send({
         statusCode: "404",
         message: "Resource not found"
       })
       break;
     case "bad request":
-      res.send({
+      res.status(400).send({
         statusCode: "400",
         message: "Bad Request"
       })
       break;
     case "internal server error":
-      res.send({
+      res.status(500).send({
         statusCode: "500",
         message: "Internal Server Error"
       })

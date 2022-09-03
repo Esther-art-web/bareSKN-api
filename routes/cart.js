@@ -1,24 +1,26 @@
 const express = require('express');
-const { Cart } = require('../models');
+const { User, Cart } = require('../models');
 
 const cartRouter = express.Router();
 
 // Get all cart items of a user
-cartRouter.get('/:owner_id', async( req, res) => {
+cartRouter.get('/:owner_id', async( req, res, next) => {
     const {owner_id} = req.params;
     try{
         const cart = await Cart.findOne({owner_id}).sort({_id: -1});
         res.send(cart);
     }catch(err) {
-        res.status(404).send(err)
+        err.type = "internal server error";
+        next(err);
     }
 })
 
 // Create a new cart for user
-cartRouter.post('/:owner_id', async(req, res) => {
+cartRouter.post('/:owner_id', async(req, res, next) => {
     const {owner_id} = req.params;
     try{
-        if(owner_id){
+        const owner = await User.findById(_id);
+        if(owner){
             const cart_details={
                 owner_id,
                 cartItems: [],
@@ -29,24 +31,39 @@ cartRouter.post('/:owner_id', async(req, res) => {
             await cart.save();
             res.status(201).send({success: "Cart Successfully created!"});
         }else{
-            res.status(404).send({error: "Cart owner not found"})
+            const err = new Error();
+            err.type = "not found";
+            next(err);
         }
     }catch(err){
-        res.status(500).send(err);
+        err.type = "bad request";
+        next(err);
     }
 })
 
 // Update cart of a user
-cartRouter.patch('/:owner_id', async(req, res) => {
+cartRouter.patch('/:owner_id', async(req, res, next) => {
     const { owner_id } = req.params;
+    const {cartItems, amount, total, cleared} = req.body;
     try{
-        const { id } = req.body;
-        const cart = await Cart.updateOne({_id: id, owner_id}, {
-            $set: {...req.body}
-        });
-        res.send(cart);
+        if(cartItems || amount || total || cleared){
+            const { id } = req.body;
+            const cart = await Cart.updateOne({_id: id, owner_id}, {
+                $set: {...req.body}
+            });
+            if(cart.modifiedCount){
+                res.send(cart);
+            }else{
+                throw new Error();
+            }
+        }else{
+            let err = new Error();
+            err.type = "bad request";
+            next(err);
+        }
     }catch(err){
-        res.status(400).send(err)
+        err.type = "not found";
+        next(err);
     }
     
 })

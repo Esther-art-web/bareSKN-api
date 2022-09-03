@@ -51,10 +51,17 @@ collectionsRouter.get('/:coll_key/products', async(req, res, next) => {
 
 // Create new collection
 collectionsRouter.post('/', async(req, res, next) => {
-    const collection = new Collection(req.body)
+    const { name, key, image_link} = req.body
+    
     try{
-        await collection.save();
-        res.status(201).send(collection);
+        if(name && key && image_link){
+            const collection = new Collection(req.body)
+            await collection.save();
+            res.status(201).send(collection);
+        }else{
+            throw new Error()
+        }
+        
     } catch(err) {
         err.type = "bad request";
         next(err);
