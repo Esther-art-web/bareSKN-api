@@ -68,20 +68,25 @@ app.use('/api/v1.0/users', usersRouter);
 
 // Error handling using middleware
 app.use((error, req, res, next) => {
-  console.log(error.type);
   switch(error.type){
-    case "not found":
-      res.status(404).send({
-        statusCode: "404",
-        message: "Resource not found"
-      })
-      break;
     case "bad request":
       res.status(400).send({
         statusCode: "400",
         message: "Bad Request"
       })
       break;
+    case "unauthorized":
+      res.status(401).send({
+        statusCode: "401",
+        message: "Unauthorized"
+      })
+      break;
+    case "not found":
+      res.status(404).send({
+        statusCode: "404",
+        message: "Resource not found"
+      })
+      break;  
     case "internal server error":
       res.status(500).send({
         statusCode: "500",

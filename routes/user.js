@@ -12,6 +12,7 @@ const hashPassword = () => {
 }
 
 const generateJWT =(data) => {
+    data.date = Date.now();
     const jwt_secret = process.env.JWT_SECRET_KEY;
     const token = jwt.sign(data, jwt_secret);
     return token;
@@ -20,7 +21,6 @@ const generateJWT =(data) => {
 const get_token_from_header =(header, next) => {
     if("authorization" in header){
         console.log("Authorization in header");
-        const jwt_secret = process.env.JWT_SECRET_KEY;
         const header_parts = header['authorization'].split(' ');
         if(header_parts.length === 2){
             if(header_parts[0] === "Bearer"){
@@ -36,12 +36,23 @@ const get_token_from_header =(header, next) => {
             next(err);
         }
     }else{
-        console.log("Authorization not in header")
+        console.log("Authorization not in header");
     }
 }
 
-const verify_jwt = (token) => {
-    console.log(token)
+const verify_jwt = (token, next) => {
+    const token_duration_milliseconds = 3600000;
+    const jwt_secret = process.env.JWT_SECRET_KEY;
+    const verified = jwt.verify(token, jwt_secret);
+    const current_time = Date.now();
+    const expiry_date = new Date(verified.date).getTime() + token_duration_milliseconds;
+    if(expiry_date >= current_time){
+        return verified;
+    }else{
+        let err = new Error();
+        err.type = "unauthorized";
+        next(err);
+    }
 }
 
 usersRouter.post('/', async(req, res, next) => {
@@ -92,11 +103,32 @@ usersRouter.post('/login', async (req, res, next) => {
     }
 })
 
-usersRouter.get('/verify_jwt', (req, res, next) => {
+usersRouter.get('/verify_jwt', async(req, res, next) => {
     const header = req.headers;
     const token = get_token_from_header(header, next);
-    if(token){
-        verify_jwt(token);
+    try{
+        if(token){
+            const data = verify_jwt(token, next);
+            if(data) {
+                const { email, password } = data;
+                const user = await User.findOne({ email, password });
+                if(user){
+                    res.send({
+                        user,
+                        token
+                    });
+                }else{
+                    let err = new Error();
+                    err.type = "not found";
+                    next(err);
+                }
+            }
+        }else{
+            throw new Error();
+        }
+    }catch(err) {
+        err.type = "unauthorized";
+        next(err);
     }
 })
 

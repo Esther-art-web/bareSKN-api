@@ -8,9 +8,14 @@ cartRouter.get('/:owner_id', async( req, res, next) => {
     const {owner_id} = req.params;
     try{
         const cart = await Cart.findOne({owner_id}).sort({_id: -1});
-        res.send(cart);
+        if(cart){
+            res.send(cart);
+        }else{
+            throw new Error();
+        }
+        
     }catch(err) {
-        err.type = "internal server error";
+        err.type = "not found";
         next(err);
     }
 })
@@ -19,7 +24,7 @@ cartRouter.get('/:owner_id', async( req, res, next) => {
 cartRouter.post('/:owner_id', async(req, res, next) => {
     const {owner_id} = req.params;
     try{
-        const owner = await User.findById(_id);
+        const owner = await User.findById(owner_id);
         if(owner){
             const cart_details={
                 owner_id,
