@@ -1,11 +1,15 @@
 const express = require('express');
-const { User } = require('../models');
+const mongoose = require("mongoose");
+const { User, Cart } = require('../models');
 const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
+
 
 dotenv.config();
 
 const usersRouter = express.Router();
+
+// const generateRandom
 
 const hashPassword = () => {
 
@@ -20,7 +24,6 @@ const generateJWT =(data) => {
 
 const get_token_from_header =(header, next) => {
     if("authorization" in header){
-        console.log("Authorization in header");
         const header_parts = header['authorization'].split(' ');
         if(header_parts.length === 2){
             if(header_parts[0] === "Bearer"){
@@ -36,7 +39,9 @@ const get_token_from_header =(header, next) => {
             next(err);
         }
     }else{
-        console.log("Authorization not in header");
+        let err = new Error();
+        err.type = "bad request";
+        next(err);
     }
 }
 
@@ -74,6 +79,38 @@ usersRouter.post('/', async(req, res, next) => {
     }
 })
 
+usersRouter.post("/guest", async(req, res, next) => {
+    const id = mongoose.Types.ObjectId();
+    const id_part_01 = id.toString().slice(0, 6);
+    const id_part_02 = id.toString().slice(18);
+    // Generate JWT
+    email = `guest${id}@example.com`;
+    password = `${id_part_01}guest${id_part_02}`;
+    const token = generateJWT({
+        email,
+        password
+    });
+   try{
+        const guest = {
+            first_name: "Guest",
+            last_name: "Guest",
+            email,
+            password,
+            address: "World Wide Web",
+            phone_number: "+2345678964321",
+            type: "guest"
+        }
+        const user = new User(guest);
+        await user.save();
+        res.status(201).send({
+            user, 
+            token
+        });
+   }catch(err){
+        err.type = "internal server error";
+        next(err);
+   }
+})
 usersRouter.post('/login', async (req, res, next) => {
     const {email, password} = req.body;
     
@@ -128,6 +165,22 @@ usersRouter.get('/verify_jwt', async(req, res, next) => {
         }
     }catch(err) {
         err.type = "unauthorized";
+        next(err);
+    }
+})
+
+usersRouter.delete("/:id", async( req, res, next) => {
+    const id = req.params.id;
+    try{
+        const user = await User.findByIdAndDelete(id);
+        const user_cart = await Cart.findOneAndDelete({owner_id: id});
+        if(user){
+            res.send(user);
+        }else{
+            throw new Error();
+        }
+    }catch(err){
+        err.type="not found";
         next(err);
     }
 })
