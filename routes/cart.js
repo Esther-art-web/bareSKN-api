@@ -51,20 +51,23 @@ cartRouter.patch('/:owner_id', async(req, res, next) => {
     const { owner_id } = req.params;
     const {cartItems, amount, total, cleared} = req.body;
     try{
-        if(cartItems || amount || total || cleared){
-            const { id } = req.body;
-            const cart = await Cart.updateOne({_id: id, owner_id}, {
-                $set: {...req.body}
-            });
-            if(cart.modifiedCount){
-                res.send(cart);
+        const owner = await User.findById(owner_id);
+        if(owner){
+            if(cartItems || amount || total || cleared){
+                const { id } = req.body;
+                const cart = await Cart.updateOne({_id: id, owner_id}, {
+                    $set: {...req.body}
+                });
+                if(cart.modifiedCount){
+                    res.send(cart);
+                }
             }else{
-                throw new Error();
+                let err = new Error();
+                err.type = "bad request";
+                next(err);
             }
         }else{
-            let err = new Error();
-            err.type = "bad request";
-            next(err);
+            throw new Error();
         }
     }catch(err){
         err.type = "not found";

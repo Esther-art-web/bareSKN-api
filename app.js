@@ -71,26 +71,30 @@ app.use((error, req, res, next) => {
   switch(error.type){
     case "bad request":
       res.status(400).send({
-        statusCode: "400",
-        message: "Bad Request"
+        error: "Bad Request",
+        statusCode: 400,
+        message: "Request cannot be fulfilled due to bad syntax"
       })
       break;
     case "unauthorized":
       res.status(401).send({
-        statusCode: "401",
-        message: "Unauthorized"
+        error: "Unauthorized",
+        statusCode: 401,
+        message: "User is not authorized to access resource(s)"
       })
       break;
     case "not found":
       res.status(404).send({
-        statusCode: "404",
+        error: "Not Found",
+        statusCode: 404,
         message: "Resource not found"
       })
       break;  
     case "internal server error":
       res.status(500).send({
-        statusCode: "500",
-        message: "Internal Server Error"
+        error: "Internal Server Error",
+        statusCode: 500,
+        message: "Server could not process request"
       })
       break;
     default:
@@ -101,7 +105,7 @@ app.use((error, req, res, next) => {
 
 
 app.get('/api/v1.0/', (req, res) => {
-  res.send('Welcome to BareSKN');
+  res.send('Welcome to BareSKN API Version 1.0');
 })
 
 app.listen(PORT, console.log(`Server is running in port ${PORT}`));
