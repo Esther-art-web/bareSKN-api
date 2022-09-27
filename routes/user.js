@@ -67,9 +67,11 @@ usersRouter.post('/', async(req, res, next) => {
     try {
         if(first_name && last_name && email && address &&
             phone_number && password){
+            // Generate token
+            const token = generateJWT({email, password});
             const user = new User(req.body);
             await user.save();
-            res.status(201).send(user);
+            res.status(201).send({user, token});
         }else{
             throw new Error();
         }
