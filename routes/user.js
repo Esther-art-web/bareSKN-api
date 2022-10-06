@@ -1,4 +1,5 @@
 const express = require('express');
+const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const { User, Cart } = require('../models');
 const dotenv = require("dotenv");
@@ -8,11 +9,16 @@ const jwt = require("jsonwebtoken");
 dotenv.config();
 
 const usersRouter = express.Router();
+const SALT_ROUNDS=10;
 
 // const generateRandom
 
-const hashPassword = () => {
-
+const hashPassword = (password) => {
+    const SALT_ROUNDS=10;
+    return bcrypt.hash(password, SALT_ROUNDS).then(function(hash){
+        console.log("hash", hash)
+        return hash;
+    });
 }
 
 const generateJWT =(data) => {
@@ -60,22 +66,50 @@ const verify_jwt = (token, next) => {
     }
 }
 
-usersRouter.post('/', async(req, res, next) => {
-    const { first_name, last_name, email, address,
-        phone_number, password } = req.body;
+usersRouter.get('/', async(req, res, next) => {
+    const { email, password } = req.body;
     
-    try {
-        if(first_name && last_name && email && address &&
+    // try {
+    //     if(email && password){
+    //         // Generate token
+    //         // bcrypt.hash(password, SALT_ROUNDS).then(function(hash){
+    //         //     console.log("hash", hash)
+    //         //     return hash;
+    //         // });
+    //         const token = generateJWT({email, password});
+    //         const user = new User(req.body);
+    //         await user.save();
+    //         res.status(201).send({user, token});
+    //     }else{
+    //         throw new Error();
+    //     }
+    // }catch (err) {
+    //     err.type = "bad request";
+    //     next(err);
+    // }
+})
+
+usersRouter.post('/', async(req, res, next) => {
+    let { first_name, last_name, email, address,
+        phone_number, password } = req.body;
+    if(first_name && last_name && email && address &&
             phone_number && password){
-            // Generate token
-            const token = generateJWT({email, password});
-            const user = new User(req.body);
-            await user.save();
-            res.status(201).send({user, token});
-        }else{
-            throw new Error();
-        }
-    }catch (err) {
+        // Hash password
+        bcrypt.hash(password, SALT_ROUNDS).then(async function(hash){
+            password = hash;
+            try{
+                // Generate token
+                const token = generateJWT({email, password});
+                const user = new User({...req.body, password});
+                await user.save();
+                res.status(201).send({user, token});
+            }catch (err) {
+                err.type = "bad request";
+                next(err);
+            }
+        });
+    }else{
+        let err = {};
         err.type = "bad request";
         next(err);
     }
@@ -88,58 +122,71 @@ usersRouter.post("/guest", async(req, res, next) => {
     // Generate JWT
     email = `guest${id}@example.com`;
     password = `${id_part_01}guest${id_part_02}`;
-    const token = generateJWT({
-        email,
-        password
-    });
-   try{
-        const guest = {
-            first_name: "Guest",
-            last_name: "Guest",
+    // Hash password
+    bcrypt.hash(password, SALT_ROUNDS).then(async function(hash){
+        password = hash;
+        const token = generateJWT({
             email,
-            password,
-            address: "World Wide Web",
-            phone_number: "+2345678964321",
-            type: "guest"
-        }
-        const user = new User(guest);
-        await user.save();
-        res.status(201).send({
-            user, 
-            token
+            password
         });
-   }catch(err){
-        err.type = "internal server error";
-        next(err);
-   }
+       console.log(token)
+       try{
+            const guest = {
+                first_name: "Guest",
+                last_name: "User",
+                email,
+                password,
+                address: "World Wide Web",
+                phone_number: "+2345678964321",
+                type: "guest"
+            }
+            const user = new User(guest);
+            await user.save();
+            res.status(201).send({
+                user, 
+                token
+            });
+       }catch(err){
+            err.type = "internal server error";
+            next(err);
+       }
+    });
+    
 })
 usersRouter.post('/login', async (req, res, next) => {
-    const {email, password} = req.body;
+    let {email, password} = req.body;
     
-    try{
-        if(email && password) {
-            // Validate user
-            const user = await User.findOne({...req.body});
-            // Generate JWT
-            const token = generateJWT(req.body);
-            if(user){
-                res.send({
-                    user,
-                    token
-                });
-            }else{
-                throw new Error();
+    if(email && password) {
+        const hashedUser = await User.findOne({email});
+        // Compare users password to password in db
+        bcrypt.compare(password, hashedUser.password).then(async function(result){
+            if(result){
+                password = hashedUser.password;
+                console.log(email, password)
+                // Validate user
+                const user = await User.findOne({email, password});
+                console.log(user)
+                // Generate JWT
+                const token = generateJWT({email, password});
+                if(user){
+                    res.send({
+                        user,
+                        token
+                    });
+                }else{
+                    let err = new Error();
+                    err.type = "bad request";
+                    next(err);
+                }
             }
-        }else{
-            let err = new Error();
-            err.type = "bad request";
-            next(err);
-        }
-        
-    }catch(err){
-        err.type = "not found";
+        });
+    }else{
+        let err = new Error();
+        err.type = "bad request";
         next(err);
     }
+        
+    
 })
 
 usersRouter.get('/verify_jwt', async(req, res, next) => {
