@@ -1,5 +1,5 @@
 const express = require("express");
-const { Product } = require("../models");
+const Product = require("../models/product");
 
 const productsRouter = express.Router();
 const shuffle =(array)=> {

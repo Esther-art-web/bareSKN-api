@@ -1,5 +1,6 @@
 const express = require('express');
-const { Product, Collection } = require('../models');
+const Product = require("../models/product");
+const Collection = require("../models/collection");
 
 const collectionsRouter = express.Router();
 

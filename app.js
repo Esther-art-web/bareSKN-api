@@ -10,6 +10,7 @@ const { subCategoriesRouter } = require("./routes/subcategories");
 const { cartRouter } = require("./routes/cart");
 const { usersRouter } = require("./routes/user");
 const { errorHandler } = require("./middlewares/errorHandler");
+const authRouter = require("./routes/auth");
 require('dotenv').config();
 
 const app = express();
@@ -61,6 +62,7 @@ app.use(cors({origin: '*'}))
 //   schema
 // }));
 app.use(express.json())
+app.use("/api/v1.0/", authRouter);
 app.use('/api/v1.0/products', productsRouter);
 app.use('/api/v1.0/collections', collectionsRouter);
 app.use('/api/v1.0/categories', categoriesRouter);
