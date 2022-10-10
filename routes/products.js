@@ -79,6 +79,21 @@ productsRouter.get('/', async(req, res, next) => {
     
 })
 
+// Get product by id
+productsRouter.get('/:id', async(req, res, next) => {
+    const _id = req.params.id;
+    try{
+        const product = await Product.findOne({_id})
+        if(!product){
+            throw new Error()
+        }
+        res.send(product)
+    }catch(error){
+        error.type = "not found";
+        next(error);
+    }
+});
+
 // Update product details
 productsRouter.patch('/:id', async(req, res, next) => {
     const _id = req.params.id;

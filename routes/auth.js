@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
-const { User } = require('../models');
+const User = require("../models/user")
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 
@@ -59,24 +59,21 @@ const verify_jwt = (token, next) => {
 authRouter.post('/signup', async(req, res, next) => {
     let { first_name, last_name, email, address,
         phone_number, password } = req.body;
-    if(first_name && last_name && email && address &&
+    
+    try{
+        if(first_name && last_name && email && address &&
             phone_number && password){
-        // Hash password
-        bcrypt.hash(password, SALT_ROUNDS).then(async function(hash){
-            password = hash;
-            try{
-                // Generate token
-                const token = generateJWT({email, password});
-                const user = new User({...req.body, password});
-                await user.save();
-                res.status(201).send({user, token});
-            }catch (err) {
-                err.type = "bad request";
-                next(err);
-            }
-        });
-    }else{
-        let err = {};
+            // Hash password
+            password = await bcrypt.hash(password, SALT_ROUNDS);
+            // Generate token
+            const token = generateJWT({email, password});
+            const user = await User.create({first_name, last_name, email, address,
+                phone_number, password});
+            res.status(201).send({user, token});
+        }else{
+            throw new Error();
+        }
+    }catch (err) {
         err.type = "bad request";
         next(err);
     }
@@ -85,76 +82,68 @@ authRouter.post('/signup', async(req, res, next) => {
 authRouter.post('/login', async (req, res, next) => {
     let {email, password} = req.body;
     
-    if(email && password) {
+    try {
         const hashedUser = await User.findOne({email});
+        if(!hashedUser){
+            throw new Error();
+        }
         // Compare users password to password in db
-        bcrypt.compare(password, hashedUser.password).then(async function(result){
-            if(result){
-                password = hashedUser.password;
-                console.log(email, password)
-                // Validate user
-                const user = await User.findOne({email, password});
-                console.log(user)
-                // Generate JWT
-                const token = generateJWT({email, password});
-                if(user){
-                    res.send({
-                        user,
-                        token
-                    });
-                }else{
-                    let err = new Error();
-                    err.type = "bad request";
-                    next(err);
-                }
-            }
+        password = await bcrypt.compare(password, hashedUser.password)
+        if(!password) {
+            let err = new Error();
+            err.type = "unauthenticated";
+            next(err);
+        }
+        // Validate user
+        const user = await User.findOne({email, password: hashedUser.password});
+        // Generate JWT
+        const token = generateJWT({email, password: user.password});
+        res.send({
+            user,
+            token
         });
-    }else{
-        let err = new Error();
-        err.type = "bad request";
-        next(err);
+    }catch(error){
+        error.type = "bad request";
+        next(error);
     }
-        
-    
 })
 
 authRouter.post("/guest", async(req, res, next) => {
     const id = mongoose.Types.ObjectId();
     const id_part_01 = id.toString().slice(0, 6);
     const id_part_02 = id.toString().slice(18);
-    // Generate JWT
-    email = `guest${id}@example.com`;
-    password = `${id_part_01}guest${id_part_02}`;
-    // Hash password
-    bcrypt.hash(password, SALT_ROUNDS).then(async function(hash){
-        password = hash;
+
+    try{
+        email = `guest${id}@example.com`;
+        password = `${id_part_01}guest${id_part_02}`;
+        // Hash password
+        password = await bcrypt.hash(password, SALT_ROUNDS);
+        // Generate JWT
         const token = generateJWT({
             email,
             password
         });
-       console.log(token)
-       try{
-            const guest = {
-                first_name: "Guest",
-                last_name: "User",
-                email,
-                password,
-                address: "World Wide Web",
-                phone_number: "+2345678964321",
-                type: "guest"
-            }
-            const user = new User(guest);
-            await user.save();
-            res.status(201).send({
-                user, 
-                token
-            });
-       }catch(err){
-            err.type = "internal server error";
-            next(err);
-       }
-    });
+        console.log(token)
     
+        const guest = {
+            first_name: "Guest",
+            last_name: "User",
+            email,
+            password,
+            address: "World Wide Web",
+            phone_number: "+2345678964321",
+            type: "guest"
+        }
+        const user = new User(guest);
+        await user.save();
+        res.status(201).send({
+            user, 
+            token
+        });
+    }catch(err){
+        err.type = "internal server error";
+        next(err);
+    }
 })
 
 authRouter.get('/verify_jwt', async(req, res, next) => {
