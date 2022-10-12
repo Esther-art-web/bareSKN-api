@@ -1,6 +1,7 @@
 const express = require('express');
 const Product = require("../models/product");
 const Collection = require("../models/collection");
+const adminAuth = require('../middlewares/adminAuth');
 
 const collectionsRouter = express.Router();
 
@@ -51,7 +52,7 @@ collectionsRouter.get('/:coll_key/products', async(req, res, next) => {
 })
 
 // Create new collection
-collectionsRouter.post('/', async(req, res, next) => {
+collectionsRouter.post('/', adminAuth, async(req, res, next) => {
     const { name, key, image_link} = req.body
     
     try{
@@ -70,7 +71,7 @@ collectionsRouter.post('/', async(req, res, next) => {
 })
 
 // Update a collection
-collectionsRouter.patch('/:id', async(req, res, next) => {
+collectionsRouter.patch('/:id', adminAuth, async(req, res, next) => {
     const _id = req.params.id;
     const {name, key, image_link} = req.body;
     try{
@@ -93,7 +94,7 @@ collectionsRouter.patch('/:id', async(req, res, next) => {
 })
 
 // Delete a collection
-collectionsRouter.delete('/:id', async(req, res, next) => {
+collectionsRouter.delete('/:id', adminAuth, async(req, res, next) => {
     const _id = req.params.id;
     try{
         const collection = await Collection.findByIdAndDelete(_id);

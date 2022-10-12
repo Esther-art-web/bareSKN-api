@@ -36,7 +36,7 @@ const get_token_from_header =(header, next) => {
         }
     }else{
         let err = new Error();
-        err.type = "bad request";
+        err.type = "unauthenticated";
         next(err);
     }
 }
@@ -58,7 +58,7 @@ const verify_jwt = (token, next) => {
 
 authRouter.post('/signup', async(req, res, next) => {
     let { first_name, last_name, email, address,
-        phone_number, password } = req.body;
+        phone_number, password, role } = req.body;
     
     try{
         if(first_name && last_name && email && address &&
@@ -68,7 +68,7 @@ authRouter.post('/signup', async(req, res, next) => {
             // Generate token
             const token = generateJWT({email, password});
             const user = await User.create({first_name, last_name, email, address,
-                phone_number, password});
+                phone_number, password, role});
             res.status(201).send({user, token});
         }else{
             throw new Error();

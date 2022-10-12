@@ -2,6 +2,7 @@ const express = require("express");
 const Product = require("../models/product");
 const Category = require("../models/category");
 const SubCategory = require("../models/subcategory");
+const adminAuth = require("../middlewares/adminAuth");
 
 const subCategoriesRouter = express.Router();
 
@@ -50,7 +51,7 @@ subCategoriesRouter.get('/:subcat_key/products', async(req, res, next) => {
 });
 
 // Create new subcategory
-subCategoriesRouter.post('/', async(req, res, next) => {
+subCategoriesRouter.post('/', adminAuth, async(req, res, next) => {
     const {name, key, category_key} = req.body;
    
     try{
@@ -68,7 +69,7 @@ subCategoriesRouter.post('/', async(req, res, next) => {
 })
 
 // Delete a subcategory
-subCategoriesRouter.delete('/:id', async(req, res, next) => {
+subCategoriesRouter.delete('/:id', adminAuth, async(req, res, next) => {
     const _id = req.params.id;
     try{
         const subCategory = await SubCategory.findOneAndDelete({_id});

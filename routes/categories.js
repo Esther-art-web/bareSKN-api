@@ -1,4 +1,5 @@
 const express = require('express');
+const adminAuth = require('../middlewares/adminAuth');
 const Category = require("../models/category");
 
 const categoriesRouter = express.Router();
@@ -15,7 +16,7 @@ categoriesRouter.get('/', async(req, res, next) => {
 })
 
 // Create new category
-categoriesRouter.post('/', async(req, res, next) => {
+categoriesRouter.post('/', adminAuth, async(req, res, next) => {
     const {name, key} = req.body;
     
     try{
@@ -33,7 +34,7 @@ categoriesRouter.post('/', async(req, res, next) => {
 })
 
 // Update a category
-categoriesRouter.patch('/:id', async(req, res, next) => {
+categoriesRouter.patch('/:id', adminAuth, async(req, res, next) => {
     const _id = req.params.id;
     const {name} = req.body;
     try{
@@ -56,13 +57,14 @@ categoriesRouter.patch('/:id', async(req, res, next) => {
 })
 
 // Delete a category
-categoriesRouter.delete('/:id', async(req, res, next) => {
+categoriesRouter.delete('/:id', adminAuth, async(req, res, next) => {
     const _id = req.params.id;
     
     try{
         const category = await Category.findByIdAndDelete({_id});
         if(category){
             res.send(category);
+            return;
         }
         throw new Error();
     }catch(err){

@@ -1,4 +1,5 @@
 const express = require("express");
+const adminAuth = require("../middlewares/adminAuth");
 const Product = require("../models/product");
 
 const productsRouter = express.Router();
@@ -12,7 +13,7 @@ const shuffle =(array)=> {
 }
 
 // Create new product
-productsRouter.post('/', async (req, res, next) => {
+productsRouter.post('/', adminAuth, async (req, res, next) => {
     const {name, description, price,
         image_link, subcat_keys, coll_keys} = req.body;
    
@@ -95,7 +96,7 @@ productsRouter.get('/:id', async(req, res, next) => {
 });
 
 // Update product details
-productsRouter.patch('/:id', async(req, res, next) => {
+productsRouter.patch('/:id', adminAuth, async(req, res, next) => {
     const _id = req.params.id;
     const {name, description, price, rating, 
         image_link, subcat_keys, coll_keys} = req.body;
@@ -124,7 +125,7 @@ productsRouter.patch('/:id', async(req, res, next) => {
 })
 
 // Delete a product
-productsRouter.delete('/:id', async(req, res, next) => {
+productsRouter.delete('/:id', adminAuth, async(req, res, next) => {
     const _id = req.params.id;
     try{
         const product = await Product.findOneAndDelete({_id});

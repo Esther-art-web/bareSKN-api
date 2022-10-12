@@ -30,6 +30,10 @@ const userSchema = new Schema({
     type: {
         type: String,
         default: "registered"
+    },
+    role: {
+        type: Number,
+        defult: 2
     }
 })
 

@@ -11,6 +11,7 @@ const { cartRouter } = require("./routes/cart");
 const { usersRouter } = require("./routes/user");
 const { errorHandler } = require("./middlewares/errorHandler");
 const authRouter = require("./routes/auth");
+const { jwtAuth } = require("./middlewares/jwtAuth");
 require('dotenv').config();
 
 const app = express();
@@ -67,8 +68,8 @@ app.use('/api/v1.0/products', productsRouter);
 app.use('/api/v1.0/collections', collectionsRouter);
 app.use('/api/v1.0/categories', categoriesRouter);
 app.use('/api/v1.0/subcategories', subCategoriesRouter);
-app.use('/api/v1.0/carts', cartRouter);
-app.use('/api/v1.0/users', usersRouter);
+app.use('/api/v1.0/carts', jwtAuth, cartRouter);
+app.use('/api/v1.0/users', jwtAuth, usersRouter);
 
 // Error handling middleware
 app.use(errorHandler);
