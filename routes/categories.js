@@ -40,9 +40,9 @@ categoriesRouter.patch('/:id', adminAuth, async(req, res, next) => {
     try{
         if(name){
             const category = await Category.findByIdAndUpdate({_id}, 
-                {$set: req.body})
-            if(category.modifiedCount){
-                res.send({success: "Category updated successfully!"})
+                {$set: {name}})
+            if(category){
+                return res.send({success: "Category updated successfully!"})
             }
             throw new Error();
         }else{

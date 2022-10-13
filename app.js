@@ -22,7 +22,8 @@ const {DATABASE_USERNAME,
     DATABASE_NAME,
     NODE_ENV,
     DATABASE_DEV_URL,
-    DATABASE_TEST_URL
+    DATABASE_TEST_URL, 
+    DATABASE_PROD_URL
 } = process.env;
 
 let dbURL;
@@ -33,6 +34,9 @@ if (process.env.NODE_ENV ==='test'){
 }
 else if (process.env.NODE_ENV ==='development'){
   dbURL = DATABASE_DEV_URL
+}
+else if (process.env.NODE_ENV ==='production'){
+  dbURL = DATABASE_PROD_URL
 }
 
 

@@ -33,7 +33,7 @@ const userSchema = new Schema({
     },
     role: {
         type: Number,
-        defult: 2
+        default: 2
     }
 })
 
