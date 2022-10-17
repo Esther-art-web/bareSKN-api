@@ -1,6 +1,4 @@
 const express = require('express');
-const bcrypt = require("bcrypt");
-const mongoose = require("mongoose");
 const Cart = require("../models/cart");
 const User = require("../models/user");
 const dotenv = require("dotenv");

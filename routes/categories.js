@@ -6,7 +6,7 @@ const categoriesRouter = express.Router();
 
 // Get all categories
 categoriesRouter.get('/', async(req, res, next) => {
-    const categories = await Category.find({});
+    const categories = await Category.find({}).sort({key: 1});
     try{
         res.send(categories)
     }catch(err){
