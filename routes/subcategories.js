@@ -21,7 +21,7 @@ subCategoriesRouter.get('/', async(req, res, next) => {
 subCategoriesRouter.get('/:category_key', async(req, res, next) => {
     const { category_key } = req.params;
     const category = await Category.find({key: category_key});
-    const subCategories = await SubCategory.find({category_key});
+    const subCategories = await SubCategory.find({category_key}).sort({key: 1});
     try {
         res.send({
             category : category[0].name,
