@@ -1,6 +1,6 @@
 const express = require('express');
-const User = require('../models/user');
-const Cart = require("../models/cart");
+const User = require('../models/user.odel');
+const Cart = require("../models/cart.model");
 
 const cartRouter = express.Router();
 

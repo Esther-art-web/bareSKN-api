@@ -1,6 +1,6 @@
 const express = require("express");
-const adminAuth = require("../middlewares/adminAuth");
-const Product = require("../models/product");
+const adminAuth = require("../middlewares/adminAuth.middleware");
+const Product = require("../models/product.model");
 
 const productsRouter = express.Router();
 const shuffle =(array)=> {

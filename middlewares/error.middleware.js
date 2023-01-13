@@ -1,5 +1,5 @@
 const errorHandler = (error, req, res, next) => {
-  switch(error.type){
+  switch(error.error){
       case "bad request":
         res.status(400).send({
           error: "Bad Request",
@@ -9,7 +9,7 @@ const errorHandler = (error, req, res, next) => {
         break;
       case "unauthenticated":
         res.status(401).send({
-          error: "Unauthorized",
+          error: "Unauthenticated",
           statusCode: 401,
           message: "User is not authenticated"
         })
@@ -28,15 +28,12 @@ const errorHandler = (error, req, res, next) => {
           message: "Resource not found"
         })
         break;  
-      case "internal server error":
+      default:
         res.status(500).send({
           error: "Internal Server Error",
           statusCode: 500,
           message: "Server could not process request"
         })
-        break;
-      default:
-        console.log("Error not handled");
   }
   next();
 }
