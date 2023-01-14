@@ -80,13 +80,13 @@ exports.validateCreateUser = async(req, res, next) => {
 exports.validateUpdateUser = async(data, req, res, next) => {
         const { first_name, last_name, email, address, phone_number, type, role } = req.body;
         try{
-             if(!data.error){
+            if(!data.error){
                 const user = data
                 const validInput = await updateUserSchema.validateAsync({first_name, last_name, email, address, phone_number, type, role});
                 next({user, validInput});
                 return
-             }
-             next(data);
+            }
+            next(data);
         }catch(err){
              err.error = "bad request"
              next(err);

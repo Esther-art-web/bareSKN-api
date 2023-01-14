@@ -9,7 +9,7 @@ const generateJWT= (data) => {
         _id: data._id,
         email: data.email
     }
-    const token = jwt.sign(payload, JWT_SECRET_KEY, { expiresIn: '1h' });
+    const token = jwt.sign(payload, JWT_SECRET_KEY, { expiresIn: '12h' });
     return token;
 }
 
