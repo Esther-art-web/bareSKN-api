@@ -54,15 +54,19 @@ exports.updateProduct = async(data, req, res, next) => {
         
         const _id = req.params.id;
         const filtered_data = filterDefinedFields(data.validInput);
+
+        const product = await Product.findById(_id);
+
+        if(!product) throw Error();
+
+        Object.keys(filtered_data).forEach(async(data) => product[data] = filtered_data[data])
         
-        const product = await Product.findByIdAndUpdate(_id, {$set: filtered_data});
-        
-        if(product){
-            res.json({message: "Product updated successfully"});
-            return;
-        }
+        await product.save();
+
+        res.json({message: "Product updated successfully"});
+        return;
     }catch(err){
-        err.error = "bad request";
+        err.error = "not found";
         next(err);
     }
 }

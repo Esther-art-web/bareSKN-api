@@ -1,112 +1,30 @@
 const express = require('express');
-const Product = require("../models/product");
-const Collection = require("../models/collection");
-const adminAuth = require('../middlewares/adminAuth');
+const Product = require("../models/product.model");
+const Collection = require("../models/collection.model");
+const { getAllCollections, createCollection, getCollectionByKey, getProductsByCollection, updateCollection, deleteCollection } = require('../controllers/collections.controller');
+const { authenticateUser } = require('../middlewares/authentication.middleware');
+const { authorizeAdmin } = require('../middlewares/authorization.middleware');
+const { validateCreateCollection, validateUpdateCollection } = require('../middlewares/validators/collection.validator');
 
 const collectionsRouter = express.Router();
 
 // Get all the collections 
-collectionsRouter.get('/', async(req, res, next) => {
-    const collections = await Collection.find({});
-    try{
-        res.status(200).send(collections);
-    }catch(err){
-        err.type = "internal server error";
-        next(err);
-    }
-})
+collectionsRouter.get('/', getAllCollections)
 
 // Get collection by key
-collectionsRouter.get('/:key', async (req, res, next) => {
-    const { key } = req.params;
-    const collection = await Collection.find({key})
-    try{
-        if(collection.length){
-            res.send(collection);
-        }else{
-            throw new Error();
-        }
-    }catch(err){
-        err.type = "not found";
-        next(err);
-    }
-})
+collectionsRouter.get('/:key', getCollectionByKey);
+
 // Get products by collection
-collectionsRouter.get('/:coll_key/products', async(req, res, next) => {
-    const { coll_key } = req.params;
-    const collection = await Collection.find({key: coll_key});
-    const products = await Product.find({coll_keys: coll_key}).sort({name: 1});
-    try{
-        if(collection && products){
-            res.send({
-                collection: collection[0].name,
-                products
-            })
-        }else{
-            throw new Error();
-        }
-    }catch(err){
-        err.type = "not found";
-        next(err);
-    }
-})
+collectionsRouter.get('/:coll_key/products', getProductsByCollection)
 
 // Create new collection
-collectionsRouter.post('/', adminAuth, async(req, res, next) => {
-    const { name, key, image_link} = req.body
-    
-    try{
-        if(name && key && image_link){
-            const collection = new Collection(req.body)
-            await collection.save();
-            res.status(201).send(collection);
-        }else{
-            throw new Error()
-        }
-        
-    } catch(err) {
-        err.type = "bad request";
-        next(err);
-    }
-})
+collectionsRouter.post('/',[authenticateUser, authorizeAdmin, validateCreateCollection], createCollection)
 
 // Update a collection
-collectionsRouter.patch('/:id', adminAuth, async(req, res, next) => {
-    const _id = req.params.id;
-    const {name, key, image_link} = req.body;
-    try{
-        if(name || key || image_link){
-            const collection = await Collection.findByIdAndUpdate({_id}, 
-                {$set: req.body})
-            if(collection.modifiedCount){
-                res.send({success: "Collection deleted successfully!"})
-            }
-            throw new Error();
-        }else{
-            let err = new Error();
-            err.type = "bad request";
-            next(err);
-        }
-    }catch(err){
-        err.type = "not found";
-        next(err);
-    }
-})
+collectionsRouter.patch('/:id',[authenticateUser, authorizeAdmin, validateUpdateCollection], updateCollection)
 
 // Delete a collection
-collectionsRouter.delete('/:id', adminAuth, async(req, res, next) => {
-    const _id = req.params.id;
-    try{
-        const collection = await Collection.findByIdAndDelete(_id);
-        if(collection){
-            res.send({success: "Collection deleted successfully!"})
-        }
-        throw new Error()
-    }catch(err){
-        err.type = "not found";
-        next(err);
-    }
-})
+collectionsRouter.delete('/:id', [authenticateUser, authorizeAdmin], deleteCollection)
 
 
 module.exports = {collectionsRouter};
