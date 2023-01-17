@@ -20,18 +20,6 @@ const {
 
 let dbURL = DATABASE_CONN_STR;
 
-
-// if (process.env.NODE_ENV ==='test'){
-//   dbURL = DATABASE_TEST_URL
-// }
-// else if (process.env.NODE_ENV ==='development'){
-//   dbURL = DATABASE_DEV_URL
-// }
-// else if (process.env.NODE_ENV ==='production'){
-//   dbURL = DATABASE_PROD_URL
-// }
-
-
 // Manage MongoDB connection
 mongoose.connect(dbURL, {
     useNewUrlParser: true,
@@ -50,6 +38,17 @@ mongoose.connection.on("error", (err) => {
 app.use(cors({origin: '*'}));
 app.use(express.json())
 app.use(helmet());
+
+
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
+
+// Apply the rate limiting middleware to all requests
+app.use(limiter)
 
 app.use("/api/v1.0/", authRouter);
 app.use('/api/v1.0/users', usersRouter)
