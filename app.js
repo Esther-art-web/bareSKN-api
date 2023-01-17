@@ -15,12 +15,10 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 8080;
 const {
-  DATABASE_DEV_URL,
-  DATABASE_TEST_URL, 
-  DATABASE_PROD_URL
+  DATABASE_CONN_STR
 } = process.env;
 
-let dbURL = DATABASE_DEV_URL;
+let dbURL = DATABASE_CONN_STR;
 
 
 // if (process.env.NODE_ENV ==='test'){
