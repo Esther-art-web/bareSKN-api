@@ -5,7 +5,7 @@ exports.authorizeAdmin = async(data, req, res, next) => {
         if(data.error) return next(data);
 
         const { role } = data;
-        if(role !== 1){
+        if(role !== "admin"){
             throw new Error();
         }
 

@@ -1,4 +1,5 @@
 const Category = require("../models/category.model");
+const APIFeatures = require("../utils/apiFeatures");
 const { filterDefinedFields } = require("../utils/validatorCleanup");
 
 exports.createCategory = async(data, req, res, next) => {
@@ -15,8 +16,12 @@ exports.createCategory = async(data, req, res, next) => {
 
 exports.getAllCategories = async(req, res, next) => {
     try{
-        const categories = await Category.find().sort("key");
-        res.json(categories);
+        const categories = new APIFeatures(Category.find(), req.query)
+            .filter()
+            .search()
+            .sort()
+            .paginate()
+        res.json(await categories.query);
         return;
     }catch(err){
         next(err)

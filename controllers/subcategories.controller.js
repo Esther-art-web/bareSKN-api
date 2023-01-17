@@ -1,6 +1,7 @@
 const Category = require("../models/category.model");
 const { Product } = require("../models/product.model");
 const SubCategory = require("../models/subcategory.model");
+const APIFeatures = require("../utils/apiFeatures");
 const { filterDefinedFields } = require("../utils/validatorCleanup");
  
 exports.createSubcategory = async(data, req, res, next) => {
@@ -17,8 +18,12 @@ exports.createSubcategory = async(data, req, res, next) => {
 
 exports.getAllSubcategories = async(req, res, next) => {
     try{
-        const subcategories = await SubCategory.find().sort("key");
-        res.json(subcategories)
+        const subcategories = new APIFeatures(SubCategory.find(), req.query)
+            .filter()
+            .search()
+            .sort()
+            .paginate()
+        res.json(await subcategories.query)
     }catch(err){
         next(err)
     }

@@ -27,9 +27,10 @@ const userSchema = Joi.object({
         .valid("registered", "guest")
         .default("registered")
         .trim(),
-    role: Joi.number()
-        .valid(1, 2)
-        .default(2)
+    role: Joi.string()
+        .valid("admin", "user")
+        .default("user")
+        .trim(),
 }) 
 
 const updateUserSchema = Joi.object({
@@ -49,8 +50,9 @@ const updateUserSchema = Joi.object({
     type: Joi.string()
         .valid("registered", "guest")
         .trim(),
-    role: Joi.number()
-        .valid(1, 2)
+    role: Joi.string()
+        .valid("user", "admin")
+        .trim(),
     }) 
 
 const changePasswordSchema = Joi.object({

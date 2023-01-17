@@ -1,6 +1,7 @@
 const Collection = require("../models/collection.model");
 const { Product } = require("../models/product.model");
 const { productsRouter } = require("../routes/products.route");
+const APIFeatures = require("../utils/apiFeatures");
 const { filterDefinedFields } = require("../utils/validatorCleanup");
 
 exports.createCollection = async(data, req, res, next) => {
@@ -19,9 +20,13 @@ exports.createCollection = async(data, req, res, next) => {
 }
 
 exports.getAllCollections = async(req, res, next) => {
-    const collections = await Collection.find({});
     try{
-        res.status(200).json(collections);
+        const collections= new APIFeatures(Collection.find(), req.query)
+            .filter()
+            .search()
+            .sort()
+            .paginate()
+        res.json(await collections.query)
     }catch(err){
         err.type = "internal server error";
         next(err);
