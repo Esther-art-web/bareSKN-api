@@ -1,80 +1,25 @@
 const express = require('express');
-const User = require('../models/user.odel');
+const User = require('../models/user.model');
 const Cart = require("../models/cart.model");
+const { getAllCarts, createCart, getCartById, updateCart, deleteCart } = require('../controllers/carts.controller');
+const { validateUpdateCart } = require('../middlewares/validators/cart.validator');
+const { authenticateUser } = require('../middlewares/authentication.middleware');
 
 const cartRouter = express.Router();
 
 // Get all cart items of a user
-cartRouter.get('/:owner_id', async( req, res, next) => {
-    const {owner_id} = req.params;
-    try{
-        const cart = await Cart.findOne({owner_id}).sort({_id: -1});
-        if(cart){
-            res.send(cart);
-        }else{
-            throw new Error();
-        }
-        
-    }catch(err) {
-        err.type = "not found";
-        next(err);
-    }
-})
+cartRouter.get('/',[authenticateUser], getAllCarts);
 
-// Create a new cart for user
-cartRouter.post('/:owner_id', async(req, res, next) => {
-    const {owner_id} = req.params;
-    try{
-        const owner = await User.findById(owner_id);
-        if(owner){
-            const cart_details={
-                owner_id,
-                cartItems: [],
-                amount: 0,
-                total: 0
-            }
-            const cart = new Cart(cart_details);
-            await cart.save();
-            res.status(201).send({success: "Cart Successfully created!"});
-        }else{
-            const err = new Error();
-            err.type = "not found";
-            next(err);
-        }
-    }catch(err){
-        err.type = "bad request";
-        next(err);
-    }
-})
+// Get cart by Id
+cartRouter.get("/:id", [authenticateUser], getCartById);
 
-// Update cart of a user
-cartRouter.patch('/:owner_id', async(req, res, next) => {
-    const { owner_id } = req.params;
-    const {cartItems, amount, total, cleared} = req.body;
-    try{
-        const owner = await User.findById(owner_id);
-        if(owner){
-            if(cartItems || amount || total || cleared){
-                const { id } = req.body;
-                const cart = await Cart.updateOne({_id: id, owner_id}, {
-                    $set: {...req.body}
-                });
-                if(cart.modifiedCount){
-                    res.send(cart);
-                }
-            }else{
-                let err = new Error();
-                err.type = "bad request";
-                next(err);
-            }
-        }else{
-            throw new Error();
-        }
-    }catch(err){
-        err.type = "not found";
-        next(err);
-    }
-    
-})
+// Create a new cart 
+cartRouter.post('/', [authenticateUser], createCart);
+
+// Update cart by id
+cartRouter.patch('/:id', [authenticateUser, validateUpdateCart], updateCart);
+
+// Delete cart by id
+cartRouter.delete('/:id', [authenticateUser], deleteCart);
 
 module.exports = { cartRouter };

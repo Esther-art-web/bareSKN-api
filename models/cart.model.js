@@ -3,7 +3,8 @@ const {Schema, model} = require("mongoose");
 const cartSchema = new Schema({
     owner_id: {
         type: String,
-        required: true
+        required: true,
+        ref: "User"
     },
     cartItems: {
         type: [Object],

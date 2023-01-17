@@ -5,7 +5,7 @@ const { productsRouter } = require("./routes/products.route");
 const { collectionsRouter } = require("./routes/collections.route");
 const { categoriesRouter } = require("./routes/categories.route");
 const { subCategoriesRouter } = require("./routes/subcategories.route");
-// const { cartRouter } = require("./routes/cart.route");
+const { cartRouter } = require("./routes/cart.route");
 const  usersRouter  = require("./routes/users.route");
 const { errorHandler } = require("./middlewares/error.middleware");
 const authRouter = require("./routes/auth.route");
@@ -59,7 +59,7 @@ app.use('/api/v1.0/products', productsRouter);
 app.use('/api/v1.0/collections', collectionsRouter);
 app.use('/api/v1.0/categories', categoriesRouter);
 app.use('/api/v1.0/subcategories', subCategoriesRouter);
-// app.use('/api/v1.0/carts', authenticateUser, cartRouter);
+app.use('/api/v1.0/carts', cartRouter);
 ;
 
 // Error handling middleware
