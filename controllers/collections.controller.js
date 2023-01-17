@@ -14,7 +14,7 @@ exports.createCollection = async(data, req, res, next) => {
 
     }catch(err){
         err.error = "bad request";
-        next(err)
+        next(err);
     }
 }
 

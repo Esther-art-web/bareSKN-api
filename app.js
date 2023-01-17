@@ -3,13 +3,12 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const { productsRouter } = require("./routes/products.route");
 const { collectionsRouter } = require("./routes/collections.route");
-// const { categoriesRouter } = require("./routes/categories.route");
-// const { subCategoriesRouter } = require("./routes/subcategories.route");
+const { categoriesRouter } = require("./routes/categories.route");
+const { subCategoriesRouter } = require("./routes/subcategories.route");
 // const { cartRouter } = require("./routes/cart.route");
 const  usersRouter  = require("./routes/users.route");
 const { errorHandler } = require("./middlewares/error.middleware");
 const authRouter = require("./routes/auth.route");
-const { authenticateUser } = require("./middlewares/authentication.middleware");
 const { default: helmet } = require("helmet");
 require('dotenv').config();
 
@@ -58,8 +57,8 @@ app.use("/api/v1.0/", authRouter);
 app.use('/api/v1.0/users', usersRouter)
 app.use('/api/v1.0/products', productsRouter);
 app.use('/api/v1.0/collections', collectionsRouter);
-// app.use('/api/v1.0/categories', categoriesRouter);
-// app.use('/api/v1.0/subcategories', subCategoriesRouter);
+app.use('/api/v1.0/categories', categoriesRouter);
+app.use('/api/v1.0/subcategories', subCategoriesRouter);
 // app.use('/api/v1.0/carts', authenticateUser, cartRouter);
 ;
 

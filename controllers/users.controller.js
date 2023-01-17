@@ -7,19 +7,16 @@ exports.updateUser = async(data, req, res, next) => {
     const { user, validInput, error } = data;
     try{
         // Data contains a type field only when returning an error
-        if(!error){
-            // filter out the field(s) that are not undefined
-            let filtered_input = filterDefinedFields(validInput);
+        if(error) return next(data);
+        
+         // filter out the field(s) that are not undefined
+         let filtered_input = filterDefinedFields(validInput);
 
-            const updatedUser = await User.findByIdAndUpdate({_id: user._id}, {$set: filtered_input});
-            if(updatedUser){
-                res.json({message: "User updated successfully"})
-                return;
-            }
-        }
-        else{
-            next(data);
-        }
+         const updatedUser = await User.findByIdAndUpdate({_id: user._id}, {$set: filtered_input});
+         if(updatedUser){
+             res.json({message: "User updated successfully"})
+             return;
+         }
     }catch(err){
         next(err);
     }
