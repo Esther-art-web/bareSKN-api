@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const rateLimit = require("express-rate-limit")
 const { productsRouter } = require("./routes/products.route");
 const { collectionsRouter } = require("./routes/collections.route");
 const { categoriesRouter } = require("./routes/categories.route");
