@@ -21,7 +21,10 @@ exports.getAllCategories = async(req, res, next) => {
             .search()
             .sort()
             .paginate()
-        res.json(await categories.query);
+        res.json({
+            categories: await categories.query,
+            totalLength: await Category.countDocuments()
+        });
         return;
     }catch(err){
         next(err)

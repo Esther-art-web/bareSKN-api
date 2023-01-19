@@ -23,7 +23,10 @@ exports.getAllSubcategories = async(req, res, next) => {
             .search()
             .sort()
             .paginate()
-        res.json(await subcategories.query)
+        res.json({
+            subcategories: await subcategories.query,
+            totalLength: await SubCategory.countDocuments()
+        })
     }catch(err){
         next(err)
     }

@@ -43,7 +43,7 @@ class APIFeatures {
         limit = parseInt(limit);
         page = parseInt(page);
         
-        this.query = this.query.limit(limit).skip((page-1) * limit);
+        this.query = this.query.limit(limit).skip((page-1) * limit).sort("name");
 
         return this;
     }

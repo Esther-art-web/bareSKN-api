@@ -26,7 +26,11 @@ exports.getAllProducts = async( req, res, next) => {
                         .search()
                         .sort()
                         .paginate()
-        res.json(await products.query)
+                        
+        res.json({
+            products: await products.query,
+            totalLength: await Product.countDocuments()
+        })
     }catch(err){
         err.error="not found";
         next(err);

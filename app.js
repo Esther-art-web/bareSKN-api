@@ -43,7 +43,7 @@ app.use(helmet());
 
 const limiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
-	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+	max: 1000, // Limit each IP to 1000 requests per `window` (here, per 15 minutes)
 	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 })
@@ -58,15 +58,22 @@ app.use('/api/v1.0/collections', collectionsRouter);
 app.use('/api/v1.0/categories', categoriesRouter);
 app.use('/api/v1.0/subcategories', subCategoriesRouter);
 app.use('/api/v1.0/carts', cartRouter);
-;
-
-// Error handling middleware
-app.use(errorHandler);
-
 
 app.get('/api/v1.0/', (req, res) => {
   res.send('Welcome to BareSKN API Version 1.0');
 })
+
+app.get('/', (req, res) => {
+	res.redirect('/api/v1.0/');
+})
+
+app.get("*", (req, res, next) => {
+	const err = new Error();
+	err.error = "not found";
+	next(err);
+})
+// Error handling middleware
+app.use(errorHandler);
 
 app.listen(PORT, console.log(`Server is running in port ${PORT}`));
 

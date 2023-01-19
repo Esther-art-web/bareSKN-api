@@ -26,7 +26,10 @@ exports.getAllCollections = async(req, res, next) => {
             .search()
             .sort()
             .paginate()
-        res.json(await collections.query)
+        res.json({
+            collections: await collections.query,
+            totalCollections: await Collection.countDocuments()
+        })
     }catch(err){
         err.type = "internal server error";
         next(err);
