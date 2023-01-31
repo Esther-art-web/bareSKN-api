@@ -67,7 +67,7 @@ exports.signinGuestUser = async(req, res, next) => {
         }
         const user = await User.create(guest);
         // Generate JWT
-        const token = generateJWT(guest);
+        const token = generateJWT(user);
 
         res.status(201).send({ user, token });
     }catch(err){
