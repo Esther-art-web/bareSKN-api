@@ -11,12 +11,13 @@ const  usersRouter  = require("./routes/users.route");
 const { errorHandler } = require("./middlewares/error.middleware");
 const authRouter = require("./routes/auth.route");
 const { default: helmet } = require("helmet");
+const { paymentRouter } = require("./routes/payment.route");
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 const {
-  DATABASE_CONN_STR
+  DATABASE_CONN_STR, BARESKN_APP
 } = process.env;
 
 let dbURL = DATABASE_CONN_STR;
@@ -36,8 +37,8 @@ mongoose.connection.on("error", (err) => {
 	console.log(err);
 });
 
-app.use(cors({origin: '*'}));
-app.use(express.json())
+app.use(cors({origin: "*"}));
+app.use(express.json());
 app.use(helmet());
 
 
@@ -52,6 +53,7 @@ const limiter = rateLimit({
 app.use(limiter)
 
 app.use("/api/v1.0/", authRouter);
+app.use("/api/v1.0/paystack", paymentRouter);
 app.use('/api/v1.0/users', usersRouter)
 app.use('/api/v1.0/products', productsRouter);
 app.use('/api/v1.0/collections', collectionsRouter);
