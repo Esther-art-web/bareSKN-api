@@ -26,15 +26,12 @@ exports.callbackFromPaystack = (req, res, next) => {
             error.e_message = "Error occured while processing payment";
             return next(error);
         }
+
         response = JSON.parse(body);
-        const data = response.data;
-        // console.log(data)
-        const { reference, amount, customer } = data;
-        const { email } = customer;
-        res.json({
-            success: true,
-            ref: reference,
-            message: `${amount} transferred successfully. Receipt sent to ${email}.`
-        })
+        if(response.status){
+            res.redirect(`${BARESKN_APP}/success`)
+        }else{
+            res.redirect(`${BARESKN_APP}/failure`)
+        }
     })
 }
