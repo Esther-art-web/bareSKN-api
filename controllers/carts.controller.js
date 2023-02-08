@@ -1,4 +1,5 @@
 const { Cart } = require("../models/cart.model");
+const APIFeatures = require("../utils/apiFeatures");
 const { filterDefinedFields } = require("../utils/validatorCleanup");
 
 exports.createCart = async(data, req, res, next) => {
@@ -26,7 +27,7 @@ exports.getAllCarts = async(data, req, res, next) => {
 
         const {_id} = data;
 
-        const carts = await Cart.find({owner_id: _id}).sort("-id");
+        const carts = await Cart.find({owner_id: _id}).limit("1").sort("-createdAt");
 
         if(!carts) throw Error;
 

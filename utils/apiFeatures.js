@@ -27,7 +27,7 @@ class APIFeatures {
 
     sort(){
         if(this.queryString.sort){
-            
+        
         const sort_fields = this.queryString.sort.split(',').join(' ');
         
         this.query = this.query.sort(sort_fields);

@@ -14,7 +14,6 @@ exports.authenticateUser = async(req, res, next) => {
             if(payload) {
                 const { _id, email } = payload;
                 const user = await User.findOne({ _id, email });
-
                 if(user) return next(user);
     
                 throw new Error();

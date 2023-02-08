@@ -22,7 +22,7 @@ const cartSchema = new Schema({
         type: Boolean,
         default: false
     }
-})
+}, {timestamps: true})
 
 
 exports.Cart = model('cart', cartSchema);

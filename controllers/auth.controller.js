@@ -18,12 +18,11 @@ exports.signupUser = async(data, req, res, next) => {
         if(data.error){
             next(data); 
             return;
-        }  
-
+        }
         const user = await User.create(data);
         const token = generateJWT(user);
         res.status(201).send({user, token});
-        return
+        return;
     }catch(err){
         err.error = "bad request"
         next(err);
