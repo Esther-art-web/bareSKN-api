@@ -1,7 +1,11 @@
+const dotenv = require("dotenv");
+dotenv.config();
 const request = require("request");
 const { paystack } = require("../utils/paystack");
 const { initializePayment, verifyPayment } = paystack(request)
 
+
+const { BARESKN_APP } = process.env;
 exports.payWithPaystack =({form}, req, res, next) => {
     
     form.amount *= 100;
